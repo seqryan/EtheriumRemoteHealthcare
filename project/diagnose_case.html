@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Diagnose Case</title>
+
+
+</head>
+
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="./contract_script.js"></script>
+
+<body>
+ <div class="small">
+	 <div class="form">
+		
+		<label class="basic-tags">Case ID:</label><label class="values" id="c_id"></label></br>
+		<label class="basic-tags">Patient:</label><label class="values" id="c_patient"></label></br>
+		<label class="basic-tags">Symptoms:</label></br><label class="values" id="c_symptoms"></label></br></br>
+		<label class="basic-tags">Diagnosys:</label></br>
+		<textarea rows="10" cols="50" placeholder="Description of your diagnosys" class="diagnosys" id="c_diagnosys" style="margin-left:5px"></textarea></br>
+		<label class="basic-tags">Fees:</label>
+		<select id="c_fees" class="fees form_value" style="width:20%; display:inline-block;"> 
+			<option value="1">1 Ether</option>
+			<option value="2">2 Ether</option>
+			<option value="5">5 Ether</option>
+			<option value="7">7 Ether</option>
+			<option value="10">10 Ether</option>
+		</select></br></br>
+		<button type="button" class="diagnose-case button" >Submit</button>
+	 </div>
+</div>
+
+
+<script>
+	
+	
+	var case_id = getUrlParameter('case');
+	result = HCP.Get_Case(case_id)
+	var c_id = result[0].toNumber();
+	var status = result[1];
+	var symptoms = result[2];
+	var diagnosys = result[3];
+	var fees = result[4];
+	var p_address = result[5];
+	var d_address = result[6];
+	
+	$("#c_id").text(c_id);
+	$("#c_patient").text(HCP.Get_Patient_Name(p_address));
+	$("#c_symptoms").text(symptoms);
+	
+	$("button").click( function(){
+	var type = this.getAttribute("class").split(" ")[0];
+	console.log(type);
+		if (type == 'diagnose-case'){
+			c_id = $("#c_id").text();
+			c_diagnosys = $("#c_diagnosys").val();
+			c_fees = $("#c_fees").val();
+			HCP.Diagnose_Case(c_id, c_diagnosys, Number(c_fees), {gas: 300000});
+			window.close();
+		} 
+	});
+	
+	
+ </script>
+ 
+
+</body>
+</html>

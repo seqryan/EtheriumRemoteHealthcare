@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Add Patient</title>
+
+</head>
+ 
+
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="./contract_script.js"></script>
+
+<body>
+
+<div class="main">
+<div class="features-tab">
+	<label>Patient Services</label>
+	<a href="patient_home.html">Home</a>
+	<a href="login.html" style="float:right;">Logout</a>
+	<label style="float:right; padding-right: 30px" id="current_balance">Balance: </label>
+</div>
+
+ <div class="container">
+	<label class="tags">Health Care Provider</label>:
+	<label id="hcp_name" class="values"></label>	
+ </div>
+
+ 
+ <div class="form">
+	<label class="title">Update Patient Info:</label><hr>
+	<label class="form_label">Etherium Address</label>: <label id="patient_address" class="form_value"></label><br>
+	<label class="form_label">Full Name</label>: <input type="text" id="patient_name" class="form_value"><br>
+	<label class="form_label">Gender</label>: <select id="patient_gender" class="form_value">
+		  <option value="0">Male</option>
+		  <option value="1">Female</option>
+	</select><br>
+	<label class="form_label">Date of Birth</label>: <input type="date" id="patient_dob" class="form_value"><br>
+	<button type="button" class="button">Update Patient Info</button>
+ </div>
+ </div> 
+
+<script>
+	
+	$("#current_balance").append("(Balance: " + get_user_balance() + "  Ether)")	
+	
+
+	HCP.healthcare_provider_name(function(error, result){
+		if(!error){
+			$("#hcp_name").html(result)
+			document.title = result;
+			console.log(result);
+		} else {
+			console.error(error);
+		}
+	});
+	
+	
+	var query = window.location.search.substring(1);
+	var qs = parse_query_string(query);
+	result = HCP.Get_Patient(qs['address']);
+
+	$('#patient_address').append(qs['address']);
+	$('#patient_name').val(result[1]);
+	$('#patient_dob').val(date_format_val(new Date(result[2].toNumber() * 1000)));
+	$('#patient_gender').get(0).selectedIndex = result[3];
+	
+	
+	
+	$("button").click( function()
+           {
+             if ($("#patient_address").text() == "" || $("#patient_name").val() == "" || $("#patient_gender").val() == "" || $("#patient_dob").val() == "") {
+				alert("Fill all details");
+			 } else if(!HCP.Is_Patient($("#patient_address").text(), {gas: 300000})){
+				alert("Patient Doesn't Exists");
+			 } else {
+				var patient_address_value = $("#patient_address").text();
+				var patient_name_value = $("#patient_name").val();
+				var patient_gender_value = parseInt($("#patient_gender").val());
+				var patient_dob_date = new Date($("#patient_dob").val());
+				var patient_dob_value = Math.round(patient_dob_date.getTime() / 1000);
+				
+				try{ 
+					var details = HCP.Update_Patient_Info(patient_address_value, patient_name_value, patient_dob_value, patient_gender_value, {gas: 300000});
+					console.log(details);
+					window.location = "./index.html";    
+				} catch(error) {
+					alert(error)
+					console.log(error)
+				}
+				
+			 }
+           }
+        );
+	
+ </script>
+</body>
+</html>

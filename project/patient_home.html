@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Patient Services</title>
+
+
+</head>
+
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="./contract_script.js"></script>
+
+<body>
+ <div class="main">
+ 
+<div class="features-tab">
+	<label>Patient Services</label>
+	<a href="patient_home.html">Home</a>
+	<a href="patient_history.html">Medical History</a>
+	<a href="login.html" style="float:right;">Logout</a>
+	<label style="float:right; padding-right: 30px" id="current_balance">Balance: </label>
+</div>
+
+
+ <div class="container">
+	<label class="tags">Health Care Provider</label>:
+	<label id="hcp_name" class="values"></label><br>
+	
+ </div>
+ 
+
+<div class="info-tab" id="info-tab">
+	<label class="title">Your Details:</label><hr>
+	<div class="patients-records" id="patients-records"></div>
+</div>
+
+<div class="info-tab" id="info-tab">
+	<label class="title">Open Cases:</label><hr><button class="add-case button" style="float:right">Add Case</button></br>
+	<div class="cases" id="cases"></div>
+</div>
+</div>
+
+
+<script>
+	$("#current_balance").append("(Balance: " + get_user_balance() + "  Ether)")	
+	
+
+	HCP.healthcare_provider_name(function(error, result){
+		if(!error){
+			$("#hcp_name").html(result)
+			document.title = result;
+			console.log(result);
+		} else {
+			console.error(error);
+		}
+	});
+	
+	
+	var current_address = web3.eth.defaultAccount;
+	var addons = "<button type=\"button\" class=\"update-patient button\">Update</button>"
+	try{
+		result = HCP.Get_Patient(current_address);
+		var record = "";
+		var p_id = result[0].toNumber();
+		var p_name = result[1];
+		var p_dob = date_format(new Date(result[2].toNumber() * 1000));
+		var p_gender = (result[3].toNumber() == 0) ? 'Male' : 'Female';
+		record += "<label class = \"tags\">Patient ID</label>:<label class = \"p_id values\">" + p_id + "</label><br>";
+		record += "<label class = \"tags\">Name</label>:<label class = \"p_name values\">" + p_name + "</label><br>";
+		record += "<label class = \"tags\">Date of Birth</label>:<label class = \"p_dob values\">" + p_dob + "</label><br>";
+		record += "<label class = \"tags\">Gender</label>:<label class = \"p_gender values\">" + p_gender + "</label><br>";
+		record += "<label class = \"tags\">Address</label>:<label class = \"p_address values\">" + current_address + "</label><br>";
+		console.log(current_address)
+		$("#patients-records").append("<div class = \"record\">" + record + addons + "</div>");
+	} catch(error) {
+		console.error(error);
+	}
+	
+	
+	var case_ids = HCP.Get_Patient_Open_Cases();
+	for (i = case_ids.length - 1; i >= 0 ; i--){
+		result = HCP.Get_Case(case_ids[i])
+		var c_id = result[0].toNumber();
+		var status = result[1];
+		var symptoms = result[2];
+		var diagnosys = result[3];
+		var fees = result[4];
+		var p_address = result[5];
+		var d_address = result[6];
+		
+		var record = "";
+		record += "<label class = \"tags\">Case ID</label>:<label class = \"c_id values\">" + c_id + "</label><br>";
+		record += "<label class = \"tags\">Status</label>:<label class = \"c_status values\">" + status + "</label><br>";
+		record += "<label class = \"tags\">Symptoms</label>:<label class = \"c_symptoms values\">" + symptoms + "</label><br>";
+		
+		if (status == "Assigned"){
+			record += "<label class = \"tags\">Doctor ID</label>:<label class = \"c_status values\">" + HCP.Get_Doctor_Name(d_address) + "</label><br>";
+		}
+		
+		if (status == "Diagnosed"){
+			record += "<label class = \"tags\">Doctor ID</label>:<label class = \"c_status values\">" + HCP.Get_Doctor_Name(d_address) + "</label><br>";
+			record += "<label class = \"tags\">Diagnosys</label>:<label class = \"c_status values\">" + diagnosys + "</label><br>";
+			record += "<label class = \"tags\">Fees</label>:<label class = \"c_fees values\">" + fees + "</label><br>";
+			record += "<button type=\"button\" class=\"make-payment button\">Pay</button>"
+		}
+		
+		$("#cases").append("<div class = \"record\">" + record + "</div>");
+	}
+	
+			
+	
+	$("button").click( function(){
+	var type = this.getAttribute("class").split(" ")[0];
+	console.log(type);
+		if (type == 'update-patient'){
+			address = this.parentElement.querySelector(".p_address");
+			window.location = "./update_patient.html?address=" + address.textContent;
+		} else if (type == 'add-case'){
+			basicPopup("add_case.html", "patient_home.html", 500, 270, true)
+		} else if (type == 'make-payment'){
+			var case_id = this.parentElement.querySelector(".c_id").textContent;
+			var case_fees = this.parentElement.querySelector(".c_fees").textContent;
+			HCP.Make_Payment(parseInt(case_id), {gas: 300000, value:web3.toWei(case_fees, "ether")} );
+			window.location.href = "patient_home.html"
+		}
+	});
+	
+ </script>
+ 
+
+</body>
+</html>

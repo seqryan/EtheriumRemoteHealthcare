@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Add Case</title>
+
+
+</head>
+
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="./contract_script.js"></script>
+
+<body>
+ <div class="main">
+	<div class="features-tab">
+		<label>HCP Services</label>
+		<a href="hcp_home.html">Home</a>
+		<a href="assign_cases.html">Open Cases</a>
+		<a href="transactions.html">Transactions</a>
+		<a href="login.html" style="float:right;">Logout</a>
+		<label style="float:right; padding-right: 30px" id="current_balance"></label>
+	</div>
+ 
+	 <div class="info-tab" id="info-tab">
+		<label class="title">Open Cases:</label><hr>
+		<div class="cases" id="cases"></div>
+	</div>
+</div>
+
+
+<script>
+	$("#current_balance").append("(Balance: " + get_user_balance() + "  Ether)")	
+	
+	var doctors = HCP.Get_Doctors();
+	select_doctors = ""
+	for (i = 0; i < doctors.length; i++){
+		select_doctors += "<option value=\" " + doctors[i] + " \">" + HCP.Get_Doctor_Name(doctors[i]) + "</option>"
+	}
+
+	var case_ids = HCP.Get_HCP_Open_Cases();
+	inner_records = ""
+	header = ""
+	header += "<label class = \"header\" style=\"width:6%; display:inline-block;\">Case ID</label>";
+	header += "<label class = \"header\" style=\"width:20%; display:inline-block;\">Patient</label>";
+	header += "<label class = \"header\" style=\"width:35%; display:inline-block;\">Symptoms</label>";
+	header += "<label class = \"header\" style=\"width:25%; display:inline-block;\">Select</label></br><hr>";
+	inner_records += header;
+	
+	var addons = "<select id=\"doctor_address\" class=\"c_d_address form_value\" style=\"width:25%; display:inline-block; margin-right:20px;\">" + select_doctors + 
+		"</select><button type=\"button\" class=\"assign-doctor button\"  style=\"width:10%; display:inline-block;\">Assign</button>";
+	for (i = case_ids.length - 1; i >= 0 ; i--){
+		result = HCP.Get_Case(case_ids[i])
+		var c_id = result[0].toNumber();
+		var status = result[1];
+		var symptoms = result[2];
+		var diagnosys = result[3];
+		var fees = result[4];
+		var p_address = result[5];
+		var d_address = result[6];
+		
+		var record = "";
+		record += "<label class = \"c_id values\" style=\"width:6%; display:inline-block;\">" + c_id + "</label>";
+		record += "<label class = \"c_p_address values\" style=\"width:20%; display:inline-block;\">" + HCP.Get_Patient_Name(p_address) + "</label>";
+		record += "<label class = \"c_symptoms values\" style=\"width:25%; display:inline-block;\">" + symptoms + "</label>";
+		
+		inner_records += "<div style=\"padding:0px; margin:0px;\">" + record + addons + "</div></br>";
+	}
+	$("#cases").append("<div class = \"big-record\">" + inner_records + "</div></br>")
+	
+	
+	$("button").click( function(){
+	var type = this.getAttribute("class").split(" ")[0];
+	console.log(type);
+		if (type == 'assign-doctor'){
+			case_id = this.parentElement.querySelector(".c_id").innerHTML;
+			d_address = this.parentElement.querySelector(".c_d_address").value;
+			HCP.Assign_Case(case_id, d_address, {gas: 300000});
+			window.location.href = "assign_cases.html";
+			
+		} 
+	});
+ </script>
+ 
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Add Patient</title>
+
+
+</head>
+  
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="./contract_script.js"></script>
+
+<body>
+<div class="main">
+<div class="features-tab">
+	<label>Doctor Services</label>
+	<a href="doctor_home.html">Home</a>
+	<a href="login.html" style="float:right;">Logout</a>
+	<label style="float:right; padding-right: 30px" id="current_balance">Balance: </label>
+</div>
+
+ <div class="container">
+	<label class="tags">Health Care Provider</label>:
+	<label id="hcp_name" class="values"></label>	
+ </div>
+
+ 
+<div class="form">
+	<label class="title">Update Doctor Info:</label><hr>
+	<label class="form_label">Etherium Address:</label> <label id="doctor_address" class="form_value"></label><br>
+	<label class="form_label">Full Name:</label> <input type="text" id="doctor_name" class="form_value"><br>
+	<label class="form_label">Qualification:</label> <input type="text" id="doctor_qualification" class="form_value"><br>
+	<button type="button" class="button">Update Doctor Info</button>
+ </div>
+ </div>
+
+<script>
+	$("#current_balance").append("(Balance: " + get_user_balance() + "  Ether)")	
+
+	var current_address = web3.eth.defaultAccount;
+	var addons = "<button type=\"button\" class=\"update-doctor button\">Update</button>"
+	try{
+		result = HCP.Get_Doctor(current_address);
+		var record = "";
+		var d_id = result[0].toNumber();
+		var d_name = result[1];
+		var d_qualification = result[2];
+		record += "<label class = \"tags\">Doctor ID</label>:<label class = \"d_id values\">" + d_id + "</label><br>";
+		record += "<label class = \"tags\">Name</label>:<label class = \"d_name values\">" + d_name + "</label><br>";
+		record += "<label class = \"tags\">Qualifcation</label>:<label class = \"d_qualification values\">" + d_qualification + "</label><br>";
+		record += "<label class = \"tags\">Address</label>:<label class = \"d_address values\">" + web3.eth.defaultAccount + "</label><br>";
+		
+		$("#doctors-records").append("<div class = \"record\">" + record + addons + "</div>");
+	} catch(error) {
+		console.error(error);
+	}	
+	
+	var query = window.location.search.substring(1);
+	var qs = parse_query_string(query);
+	result = HCP.Get_Doctor(qs['address']);
+
+	$('#doctor_address').append(qs['address']);
+	$('#doctor_name').val(result[1]);
+	$('#doctor_qualification').val(result[2]);
+	
+	$("button").click( function()
+           {
+             if ($("#doctor_address").text() == "" || $("#doctor_name").val() == "" || $("#doctor_qualification").val() == "") {
+				alert("Fill all details");
+			 } else if(!HCP.Is_Doctor($("#doctor_address").text(), {gas: 300000})){
+				alert("Doctor Doesn't Exists");
+			 } else {
+				var doctor_address_value = $("#doctor_address").text();
+				var doctor_name_value = $("#doctor_name").val();
+				var doctor_qualification_value = $("#doctor_qualification").val();
+				
+				try{ 
+					var details = HCP.Update_Doctor_Info(doctor_address_value, doctor_name_value, doctor_qualification_value, {gas: 300000});
+					console.log(details);
+					window.location = "./index.html";    
+				} catch(error) {
+					alert(error)
+					console.log(error)
+				}
+				
+			 }
+           }
+        );
+	
+ </script>
+</body>
+</html>

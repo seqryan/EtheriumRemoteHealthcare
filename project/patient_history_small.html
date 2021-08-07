@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Add Case</title>
+
+
+</head>
+
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="./contract_script.js"></script>
+
+<body>
+ <div class="small">
+	
+	 <div class="info-tab" id="info-tab">
+		<label class="title">Medical History:</label><hr>
+		<div class="cases" id="cases"></div>
+	</div>
+</div>
+
+
+<script>
+	var case_id = getUrlParameter('case');
+	
+	
+	var case_ids = HCP.Get_Medical_History_By_Case(case_id);
+	inner_records = ""
+	header = ""
+	header += "<label class = \"header\" style=\"width:6%; display:inline-block;\">Case ID</label>";
+	header += "<label class = \"header\" style=\"width:20%; display:inline-block;\">Doctor</label>";
+	header += "<label class = \"header\" style=\"width:30%; display:inline-block;\">Symptoms</label>";
+	header += "<label class = \"header\" style=\"width:30%; display:inline-block;\">Diagnosys</label></br><hr>";
+	inner_records += header;
+	
+	for (i = case_ids.length - 1; i >= 0 ; i--){
+		result = HCP.Get_Case(case_ids[i])
+		var c_id = result[0].toNumber();
+		var status = result[1];
+		var symptoms = result[2];
+		var diagnosys = result[3];
+		var fees = result[4];
+		var p_address = result[5];
+		var d_address = result[6];
+		
+		var record = "";
+		record += "<label class = \"c_id values\" style=\"width:6%; display:inline-block;\">" + c_id + "</label>";
+		record += "<label class = \"c_d_address values\" style=\"width:20%; display:inline-block;\">" + HCP.Get_Doctor_Name(d_address) + "</label>";
+		record += "<label class = \"c_symptoms values\" style=\"width:30%; display:inline-block;\">" + symptoms + "</label>";
+		record += "<label class = \"c_diagnosys values\" style=\"width:30%; display:inline-block;\">" + diagnosys + "</label>";
+		
+		inner_records += "<div style=\"padding:0px; margin:0px;\">" + record + "</div></br>";
+	}
+	$("#cases").append("<div class = \"big-record\">" + inner_records + "</div></br>")
+	
+	
+	$("button").click( function(){
+	var type = this.getAttribute("class").split(" ")[0];
+	console.log(type);
+		if (type == 'assign-doctor'){
+			case_id = this.parentElement.querySelector(".c_id").innerHTML;
+			d_address = this.parentElement.querySelector(".c_d_address").value;
+			HCP.Assign_Case(case_id, d_address, {gas: 300000});
+			window.location.href = "assign_cases.html";
+			
+		} 
+	});
+ </script>
+ 
+
+</body>
+</html>

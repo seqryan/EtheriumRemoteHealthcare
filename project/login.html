@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Login</title>
+
+
+</head>
+
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="jquery-3.4.1.slim.min.js"></script>
+<script src="./contract_script.js"></script>
+
+<body>
+
+<div class="login-page">
+  <div class="form-login">
+    <form class="register-form register-patient">
+      <input type="text" id="patient_contract_address" placeholder="Contract Address"/>
+      <input type="text" id="patient_address" placeholder="Your Address"/>
+	  <input type="text" id="patient_name" placeholder="Name"/>
+	  <label class="form_label">Gender</label> <select id="patient_gender" class="form_value">
+		  <option value="0">Male</option>
+		  <option value="1">Female</option>
+	  </select><br>
+	  <label class="form_label" style="width:29%;">DoB</label> <input type="date" style="width:60%; margin-left:20px; padding:13px;" id="patient_dob" class="form_value"><br>
+	  
+      <button class="patient-button">create patient</button>
+      <p class="message">Already registered? <a href="#">Sign In</a></p>
+    </form>
+	
+	<form class="register-form register-doctor">
+	  <input type="text" id="doctor_contract_address" placeholder="Contract Address"/>
+      <input type="text" id="doctor_address" placeholder="Your Address"/>
+      <input type="text" id="doctor_name" placeholder="Name"/>
+	  <input type="text" id="doctor_qualification" placeholder="Qualification"/>
+      <button class="doctor-button">create doctor</button>
+      <p class="message">Already registered? <a href="#">Sign In</a></p>
+    </form>
+	
+
+    <form class="login-form" action="index.html">
+      <input type="text" placeholder="Contract address" id="login_contract_address"/>
+      <input type="text" placeholder="Your address" id="login_user_address"/>
+      <button class="submit-login">login</button>
+      <p class="message">Register as: </br> 
+		<a class="create-patient" href="#">Patient</a> 
+		<a class="create-doctor" href="#">Doctor</a> 
+	  </p>
+    </form>
+  </div>
+  <img src="images\background.jpg" class="fix"/>
+  
+</div>
+
+<script> 
+$(".login-form a.create-patient").click(function(){
+    $(".login-form").hide();
+    $(".register-patient").toggle("slow");
+});
+
+$(".login-form a.create-doctor").click(function(){
+    $(".login-form").hide();
+    $(".register-doctor").toggle("slow");
+});
+
+$(".login-form a.create-insurer").click(function(){
+    $(".login-form").hide();
+    $(".register-insurer").toggle("slow");
+});
+
+$(".register-form a").click(function(){
+    $(".register-form").hide();
+    $(".login-form").toggle("slow");
+});
+
+
+$(".submit-login").click(function(){
+	sessionStorage.setItem("contract_address", $("#login_contract_address").val());
+	sessionStorage.setItem("user_address", $("#login_user_address").val());
+	console.log("Contract address " + $("#login_contract_address").val())
+	console.log("User address " + $("#login_user_address").val())
+})
+
+$(".doctor-button").click(function(){
+	if ($("#doctor_contract_address").val() == "" || $("#doctor_address").val() == "" || $("#doctor_name").val() == "" || $("#doctor_qualification").val() == "") {
+		alert("Fill all details");
+	} else {
+		var contract_address = $("#doctor_contract_address").val();
+		web3.eth.defaultAccount = $("#doctor_address").val();
+		HCP = RemoteHealthcareContract.at(contract_address);	
+				
+		if(HCP.Is_Doctor($("#doctor_address").val(), {gas: 300000})){
+			alert("Doctor Already Exists");
+		 } else {
+			var doctor_address_value = $("#doctor_address").val();
+			var doctor_name_value = $("#doctor_name").val();
+			var doctor_qualification_value = $("#doctor_qualification").val();
+			
+			try{ 
+				var details = HCP.Add_Doctor(doctor_address_value, doctor_name_value, doctor_qualification_value, {gas: 300000});
+				console.log(details);
+				window.location = "./login.html";    
+			} catch(error) {
+				alert(error)
+				console.log(error)
+			}
+			
+		 }	 
+	}
+});
+
+$(".patient-button").click( function()
+   {
+	 if ($("#patient_contract_address").val() == "" || $("#patient_address").val() == "" || $("#patient_name").val() == "" || $("#patient_gender").val() == "" || $("#patient_dob").val() == "") {
+		alert("Fill all details");
+	 } else {
+		 var contract_address = $("#patient_contract_address").val();
+		 web3.eth.defaultAccount = $("#patient_address").val();
+		 HCP = RemoteHealthcareContract.at(contract_address);
+		 
+		 if(HCP.Is_Patient($("#patient_address").val(), {gas: 300000})){
+			alert("Patient Already Exists");
+		 } else {
+			var patient_address_value = $("#patient_address").val();
+			var patient_name_value = $("#patient_name").val();
+			var patient_gender_value = parseInt($("#patient_gender").val());
+			var patient_dob_date = new Date($("#patient_dob").val());
+			var patient_dob_value = Math.round(patient_dob_date.getTime() / 1000);
+			
+			try{ 
+				var details = HCP.Add_Patient(patient_address_value, patient_name_value, patient_dob_value, patient_gender_value, {gas: 300000});
+				console.log(details);
+				window.location = "./login.html";    
+			} catch(error) {
+				alert(error)
+				console.log(error)
+			}
+			
+		 }
+	 
+	 }
+   }
+);
+
+</script> 
+ 
+ 
+ <style>
+.fix{
+    position:fixed;
+    bottom:0px;
+    left:00%;
+}
+
+
+.login-page {
+  float: right;
+  width: 360px;
+  padding: 100px;
+  margin: auto;
+}
+
+.form-login {
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  max-width: 360px;
+  margin: 0 auto 100px;
+  padding: 45px;
+  text-align: center;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+.form-login input {
+  outline: 0;
+  background: #f2f2f2;
+  width: 100%;
+  border: 0;
+  margin: 0 0 15px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.form-login label {
+  outline: 0;
+  background: #f2f2f2;
+  width: 50%;
+  border: 0;
+  margin: 0 0 15px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 14px;
+  text-align: left;
+  font: 300 14px Arial;
+  color: grey;
+  text-transform: none;
+}
+
+.form-login select {
+  outline: 0;
+  background: #f2f2f2;
+  width: 40%;
+  border: 0;
+  margin: 10 0 15px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 14px;
+  text-align: left;
+  font: 300 14px Arial;
+  color: grey;
+  text-transform: none;
+}
+
+.form-login button {
+  text-transform: uppercase;
+  outline: 0;
+  background: #FFCC00;
+  width: 100%;
+  border: 0;
+  padding: 15px;
+  color: black;
+  font-size: 14px;
+  -webkit-transition: all 0.3 ease;
+  transition: all 0.3 ease;
+  cursor: pointer;
+
+}
+
+.form-login .message {
+  margin: 15px 0 0;
+  color: #b3b3b3;
+  font-size: 12px;
+}
+.form-login .message a {
+  color: #0066cc;
+  text-decoration: none;
+}
+.form-login .register-form {
+  display: none;
+}
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 300px;
+  margin: 0 auto;
+}
+.container:before, .container:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+.container .info {
+  margin: 50px auto;
+  text-align: center;
+}
+.container .info h1 {
+  margin: 0 0 15px;
+  padding: 0;
+  font-size: 36px;
+  font-weight: 300;
+  color: #1a1a1a;
+}
+.container .info span {
+  color: #4d4d4d;
+  font-size: 12px;
+}
+.container .info span a {
+  color: #000000;
+  text-decoration: none;
+}
+.container .info span .fa {
+  color: #EF3B3A;
+}
+body {
+  background: #B4E4F2; /* fallback for old browsers */
+  background: -webkit-linear-gradient(right, #B4E4F2, #B4E4F2);
+  background: -moz-linear-gradient(right, #B4E4F2, #B4E4F2);
+  background: -o-linear-gradient(right, #B4E4F2, #B4E4F2);
+  background: linear-gradient(to left, #B4E4F2, #B4E4F2);
+  font-family: 'Arvo', serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;     
+  padding-right : 0px;  
+ 
+}
+
+
+ </style>
+ 
+
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Document</title>
+
+
+</head>
+
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="./contract_script.js"></script>
+
+<body>
+ <div class="main">
+ 
+<div class="features-tab">
+	<label>HCP Services</label>
+	<a href="hcp_home.html">Home</a>
+	<a href="assign_cases.html">Open Cases</a>
+	<a href="transactions.html">Transactions</a>
+	<a href="login.html" style="float:right;">Logout</a>
+	<label style="float:right; padding-right: 30px" id="current_balance"></label>
+</div>
+
+
+ 
+ <div class="container">
+	<label class="tags">Health Care Provider</label>:
+	<label id="hcp_name" class="values"></label><br>
+	
+	<label class="tags">Total Patients</label>:
+	<label id="total_patients" class="values"></label><br>
+	
+	<label class="tags">Total Doctors</label>:
+	<label id="total_doctors" class="values"></label><br>
+	
+ </div>
+
+<br> 
+<div class="patients-tab" id="patients-tab">
+	<label class="title">Patients:</label><hr>
+	<div class="patients-records" id="patients-records"></div>
+</div>
+
+<br>
+<div class="doctors-tab" id="doctors-tab">
+	<label class="title">Doctors:</label><hr>
+	<div class="doctors-records" id="doctors-records"></div>
+</div>
+</div>
+
+
+<script>
+	
+	$("#current_balance").append("(Balance: " + get_user_balance() + "  Ether)")	
+
+	HCP.healthcare_provider_name(function(error, result){
+		if(!error){
+			$("#hcp_name").html(result)
+			document.title = result;
+			console.log(result);
+		} else {
+			console.error(error);
+		}
+	});
+	
+	HCP.number_of_patients(function(error, result){
+		if(!error){
+			$("#total_patients").html(result.toNumber())
+			console.log(result.toNumber());
+		} else {
+			console.error(error);
+		}
+	});
+	
+	HCP.number_of_doctors(function(error, result){
+		if(!error){
+			$("#total_doctors").html(result.toNumber())
+			console.log(result.toNumber());
+		} else {
+			console.error(error);
+		}
+	});
+	
+
+	for (i = 0; i < web3.eth.accounts.length; i++) {
+		if(HCP.Is_Patient(web3.eth.accounts[i], {gas: 300000})){
+			var current_address = web3.eth.accounts[i];
+			var addons = "<button type=\"button\" class=\"remove-patient button\">Remove</button>"
+			try{
+				result = HCP.Get_Patient(current_address);
+				var record = "";
+				var p_id = result[0].toNumber();
+				var p_name = result[1];
+				var p_dob = date_format(new Date(result[2].toNumber() * 1000));
+				var p_gender = (result[3].toNumber() == 0) ? 'Male' : 'Female';
+				record += "<label class = \"tags\">Patient ID</label>:<label class = \"p_id values\">" + p_id + "</label><br>";
+				record += "<label class = \"tags\">Name</label>:<label class = \"p_name values\">" + p_name + "</label><br>";
+				record += "<label class = \"tags\">Date of Birth</label>:<label class = \"p_dob values\">" + p_dob + "</label><br>";
+				record += "<label class = \"tags\">Gender</label>:<label class = \"p_gender values\">" + p_gender + "</label><br>";
+				record += "<label class = \"tags\">Address</label>:<label class = \"p_address values\">" + web3.eth.accounts[i] + "</label><br>";
+				console.log(current_address)
+				$("#patients-records").append("<div class = \"record\">" + record + addons + "</div>");
+			} catch(error) {
+				console.error(error);
+			}		
+		}
+	} 
+	
+	
+	for (i = 0; i < web3.eth.accounts.length; i++) {
+		if(HCP.Is_Doctor(web3.eth.accounts[i], {gas: 300000})){
+			var current_address = web3.eth.accounts[i];
+			var addons = "<button type=\"button\" class=\"remove-doctor button\">Remove</button>"
+			try{
+				result = HCP.Get_Doctor(current_address);
+				var record = "";
+				var d_id = result[0].toNumber();
+				var d_name = result[1];
+				var d_qualification = result[2];
+				record += "<label class = \"tags\">Doctor ID</label>:<label class = \"d_id values\">" + d_id + "</label><br>";
+				record += "<label class = \"tags\">Name</label>:<label class = \"d_name values\">" + d_name + "</label><br>";
+				record += "<label class = \"tags\">Qualifcation</label>:<label class = \"d_qualification values\">" + d_qualification + "</label><br>";
+				record += "<label class = \"tags\">Address</label>:<label class = \"d_address values\">" + web3.eth.accounts[i] + "</label><br>";
+				
+				$("#doctors-records").append("<div class = \"record\">" + record + addons + "</div>");
+			} catch(error) {
+				console.error(error);
+			}		
+		}
+	} 
+	
+	$("button").click( function(){
+	var type = this.getAttribute("class").split(" ")[0];
+	console.log(type);
+		if (type == 'remove-patient'){
+			address = this.parentElement.querySelector(".p_address");
+			HCP.Remove_Patient(address.textContent);
+			window.location = "./index.html"
+		} else if (type == 'remove-doctor'){
+			address = this.parentElement.querySelector(".d_address");
+			HCP.Remove_Doctor(address.textContent);
+			window.location = "./index.html"
+		} 
+	});
+	
+ </script>
+ 
+
+</body>
+</html>

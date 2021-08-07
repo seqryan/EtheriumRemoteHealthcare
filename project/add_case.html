@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Add Case</title>
+
+
+</head>
+
+<script src="./web3/node_modules/web3/dist/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<link rel="stylesheet" href="./style.css">
+<script src="./contract_script.js"></script>
+
+<body>
+ <div class="small">
+	 <div class="form">
+		<label class="title">New Case:</label><hr>
+		<textarea rows="10" cols="50" placeholder="Description of your symptoms" class="symptoms" style="margin-left:15px;"></textarea>
+		<button type="button" class="submit-case button">Submit</button>
+	 </div>
+</div>
+
+
+<script>
+	function RefreshParent() {
+            if (window.opener != null && !window.opener.closed) {
+                window.opener.location.reload();
+            }
+        }
+	window.onbeforeunload = RefreshParent;
+	
+	$("button").click( function(){
+	var type = this.getAttribute("class").split(" ")[0];
+	console.log(type);
+		if (type == 'submit-case'){
+			var symptoms = $(".symptoms").val();
+			HCP.Create_Case(symptoms, {gas: 300000});
+			window.close();
+		}
+	});
+ </script>
+ 
+
+</body>
+</html>

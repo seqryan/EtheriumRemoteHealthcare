@@ -1,0 +1,227 @@
+@import url('https://fonts.googleapis.com/css?family=Arvo&display=swap');
+
+div {
+	padding-bottom: 20px;
+}
+
+ a {
+	padding: 10px;
+}
+
+body {
+}
+
+.main {
+	margin:0px;
+	margin-left : 20%;
+	margin-right : 20%;
+	font-family: 'Arvo', serif;
+	font-size: 10pt;
+	background-color : #f0f0f0;
+}
+
+.small {
+	margin:0px;
+	padding:0px;
+	font-family: 'Arvo', serif;
+	font-size: 10pt;
+	background-color : #f0f0f0;
+}
+
+.patients-records .record {
+	background-color : white;
+	border-style : solid;
+	border-width : 2px;
+	border-color : #072766;
+	margin : 10px;
+	padding : 10px;
+	width : 400px;
+	overflow-wrap: break-word;
+	display: inline-block;
+	padding-left: 12px;
+}
+
+.cases .record {
+	background-color : white;
+	border-style : solid;
+	border-width : 2px;
+	border-color : #072766;
+	margin : 10px;
+	padding : 10px;
+	width : 400px;
+	overflow-wrap: break-word;
+	display: inline-block;
+	padding-left: 12px;
+}
+
+.cases .big-record {
+	background-color : white;
+	border-style : solid;
+	border-width : 2px;
+	border-color : #072766;
+	margin : 10px;
+	padding : 10px;
+	width : 95%;
+	overflow-wrap: break-word;
+	display: inline-block;
+	padding-left: 12px;
+}
+
+.cases .header{
+	padding-left:20px;
+	font-weight: bold;
+	padding-bottom:5px;
+}
+
+
+.doctors-records .record {
+	background-color : white;
+	border-style : solid;
+	border-width : 2px;
+	border-color : #072766;
+	margin : 10px;
+	padding : 10px;
+	width : 400px;
+	overflow-wrap: break-word;
+	display: inline-block;
+	padding-left: 12px;
+}
+
+.assignment-records .record {
+	background-color : white;
+	border-style : solid;
+	border-width : 2px;
+	border-color : #072766;
+	margin : 10px;
+	padding : 10px;
+	width : 400px;
+	overflow-wrap: break-word;
+	display: inline-block;
+	padding-left: 12px;
+}
+
+
+.record button {
+	margin : 10px;
+	
+}
+
+.tags {
+    width:130px;
+    text-transform: uppercase;
+    display:inline-block;
+	padding-bottom:5px;
+}
+
+.values{
+	padding-left:20px;
+	font-weight: bold;
+	padding-bottom:5px;
+	
+}
+
+.basic-tags {
+    text-transform: uppercase;
+    display:inline-block;
+	margin-top:10px;
+	padding-right:5px;
+	margin-left: 5px;
+	font-size: 10pt;
+	text-align: right;
+	
+}
+
+.container .tags {
+    width:250px;
+    font-size: 12pt;
+	padding-bottom:10px;
+	padding-left: 20px;
+}
+
+.container .values {
+    font-size: 12pt;
+}
+
+.features-tab {
+	background-color : #003399;
+	font-size: 12pt;
+	padding : 10px;
+	margin-bottom : 20px;
+}
+
+.features-tab a { 
+	color: white;
+}
+
+.features-tab label { 
+	color: white;
+	padding-right: 10px;
+}
+
+.features-tab a:hover { 
+	background-color: #FFCC00;
+	color: black;
+}
+
+
+
+.title{
+	font-size: 15pt;
+	padding-left: 20px;
+	
+}
+
+.button {
+  background-color: #FFCC00;
+  border: none;
+  color: black;
+  padding: 10px 20px;
+  text-align: center;
+  font-weight: bold;
+  display: inline-block;
+  font-size: 12px;
+  margin: 4px 2px;
+}
+
+.form_label {
+    width:300px;
+    text-transform: uppercase;
+    display:inline-block;
+	padding-bottom:10px;
+	padding-right:15px;
+	margin-left: 20px;
+	font-size: 10pt;
+	text-align: right;
+	margin-bottom: 10px; 
+}
+
+.form_label_small {
+    width:100px;
+    text-transform: uppercase;
+    display:inline-block;
+	padding-bottom:10px;
+	padding-right:15px;
+	margin-left: 20px;
+	font-size: 10pt;
+	text-align: right;
+	margin-bottom: 10px; 
+}
+
+.form_value {
+	font-weight: bold;
+	margin-left: 20px;
+	padding: 5px;	
+}
+
+.form .button{
+	margin-left: 40%;
+	border-color: grey;
+	border-style: none;
+	background-color: #FFCC00;
+	border-width: 1px;
+}
+
+.login_form{
+	background-color: #f0f0f0;
+	float: right
+}
